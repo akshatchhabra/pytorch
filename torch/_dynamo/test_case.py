@@ -94,7 +94,7 @@ class TestCase(TorchTestCase):
     def tearDown(self) -> None:
         trace_log.removeHandler(self.handler)
         for k, v in utils.counters.items():
-            print(k, v.most_common())
+            log.info("%s %s", k, v.most_common())
         reset()
         utils.counters.clear()
         super().tearDown()
