@@ -18,6 +18,15 @@ def get_merge_base() -> str:
         text=True,
         stderr=subprocess.DEVNULL,
     ).strip()
+    # Remove this when we turn this off for the main branch
+    if merge_base == get_head_sha():
+        print("Merge base is the same as HEAD, using HEAD^")
+        merge_base = subprocess.check_output(
+            ["git", "rev-parse", "HEAD^"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    print(f"Merge base: {merge_base}")
     return merge_base
 
 
@@ -236,15 +245,15 @@ def parse_args() -> argparse.Namespace:
 
 
 def can_reuse_whl(args: argparse.Namespace) -> bool:
-    if is_main_branch() or (
-        args.github_ref
-        and any(
-            args.github_ref.startswith(x)
-            for x in ["refs/heads/release", "refs/tags/v", "refs/heads/main"]
-        )
-    ):
-        print("On main branch or release branch, rebuild whl")
-        return False
+    # if is_main_branch() or (
+    #     args.github_ref
+    #     and any(
+    #         args.github_ref.startswith(x)
+    #         for x in ["refs/heads/release", "refs/tags/v", "refs/heads/main"]
+    #     )
+    # ):
+    #     print("On main branch or release branch, rebuild whl")
+    #     return False
 
     if check_labels_for_pr():
         print(f"Found {FORCE_REBUILD_LABEL} label on PR, rebuild whl")
